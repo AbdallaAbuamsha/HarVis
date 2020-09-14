@@ -1,5 +1,6 @@
 package com.dataplume.HarVis.har;
 
+import com.dataplume.HarVis.har.models.Search;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +14,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/har")
 public class HarController extends RuntimeException{
+
+    private final HarServices harServices;
+
+    public HarController(HarServices harServices) {
+        this.harServices = harServices;
+    }
+
     @PostMapping
     public ResponseEntity<String> startCampaign(@Valid @RequestBody Search search)
     {

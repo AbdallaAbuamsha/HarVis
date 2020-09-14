@@ -1,4 +1,4 @@
-package com.dataplume.HarVis.har;
+package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.enums.CampaignMode;
 import com.dataplume.HarVis.enums.SocialMediaType;
