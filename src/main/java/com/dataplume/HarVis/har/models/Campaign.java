@@ -39,10 +39,12 @@ public class Campaign {
         List<Post> postsList = crawler.getData();
         filterData(postsList);
         evolve(crawler, postsList);
+        //TODO: save the data
         return postsList;
     }
 
     private List<Post> evolve(Crawler crawler, List<Post> postsList) {
+        //TODO: check if evolving will depend on round posts or all posts
         List<Post> roundPostsList = null;
         String originalKeywordSearch = search.getSearchKeywords();
         for(searchRound = 0 ; searchRound  < search.getMaxEvolveDepth(); searchRound++) {
@@ -70,6 +72,7 @@ public class Campaign {
         for (Post post: postsList) {
             String title = post.getTitle();
             String filteredTitle = TextCleaning.removeStopWords(title);
+            //TODO: remove punctuation and 1 letter words
             post.setTitle(filteredTitle);
         }
     }

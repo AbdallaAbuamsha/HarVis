@@ -135,6 +135,8 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
         int numberOfElementsInPage = 0;
         List<WebElement> elements = new ArrayList<>();
         JavascriptExecutor js = (JavascriptExecutor) driver;
+        //TODO: check if old results can be used again
+        //TODO: check campaign mode to accept or reject post
         while (numberOfElementsInPage < search.getMaxSearchResults())
         {
             js.executeScript("window.scrollBy(0,700)");

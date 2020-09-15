@@ -27,6 +27,7 @@ public class HarController extends RuntimeException{
     @PostMapping
     public ResponseEntity<List<Post>> startCampaign(@Valid @RequestBody Search search)
     {
+        //TODO: validate inputs for bad search keywords
         return new ResponseEntity<>(harServices.startCampaign(search), HttpStatus.OK);
     }
 

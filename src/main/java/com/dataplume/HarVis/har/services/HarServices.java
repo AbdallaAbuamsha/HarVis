@@ -13,6 +13,7 @@ public class HarServices {
 
     public List<Post> startCampaign(Search search)
     {
+        //TODO: get old results
         Campaign campaign = new Campaign(search);
         return campaign.startCrawling();
     }
