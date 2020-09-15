@@ -1,4 +1,4 @@
-package com.dataplume.HarVis.enums;
+package com.dataplume.HarVis.har.enums;
 
 public enum SocialMediaType {
     YOUTUBE,

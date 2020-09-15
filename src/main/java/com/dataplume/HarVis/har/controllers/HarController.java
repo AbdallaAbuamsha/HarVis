@@ -1,6 +1,8 @@
-package com.dataplume.HarVis.har;
+package com.dataplume.HarVis.har.controllers;
 
+import com.dataplume.HarVis.har.models.Post;
 import com.dataplume.HarVis.har.models.Search;
+import com.dataplume.HarVis.har.services.HarServices;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,9 +25,9 @@ public class HarController extends RuntimeException{
     }
 
     @PostMapping
-    public ResponseEntity<String> startCampaign(@Valid @RequestBody Search search)
+    public ResponseEntity<List<Post>> startCampaign(@Valid @RequestBody Search search)
     {
-        return new ResponseEntity<>(search.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(harServices.startCampaign(search), HttpStatus.OK);
     }
 
     @ResponseBody

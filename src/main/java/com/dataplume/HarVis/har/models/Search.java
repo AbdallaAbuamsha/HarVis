@@ -1,7 +1,7 @@
 package com.dataplume.HarVis.har.models;
 
-import com.dataplume.HarVis.enums.CampaignMode;
-import com.dataplume.HarVis.enums.SocialMediaType;
+import com.dataplume.HarVis.har.enums.CampaignMode;
+import com.dataplume.HarVis.har.enums.SocialMediaType;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotEmpty;
@@ -115,4 +115,6 @@ public class Search {
                 ", hashTags='" + hashTags + "\n"+
                 '}';
     }
+
+
 }
