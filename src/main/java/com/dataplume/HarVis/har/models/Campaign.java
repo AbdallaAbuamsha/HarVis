@@ -2,13 +2,21 @@ package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumYoutubeCrawler;
 import com.dataplume.HarVis.utils.exceptionshandlers.TextCleaning;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class Campaign {
-    private static final int COUNT_OF_EVOLVED_WORDS = 10;
+
+    Logger logger = LoggerFactory.getLogger(Campaign.class);
+
+
+    private static final int COUNT_OF_EVOLVED_WORDS = 5;
     private Search search;
     private int searchRound;
     private String[][] evolvedWords;
@@ -40,6 +48,7 @@ public class Campaign {
         filterData(postsList);
         evolve(crawler, postsList);
         //TODO: save the data
+
         return postsList;
     }
 
@@ -57,8 +66,10 @@ public class Campaign {
             {
                 String newKeywordSearch = search.getSearchKeywords() +" "+ evolvedWords[searchRound][i];
                 search.setSearchKeywords(newKeywordSearch);
-                roundPostsList.addAll(crawler.getData());
+                List<Post> searchResult = crawler.getData();
+                filterData(searchResult);
                 search.setSearchKeywords(originalKeywordSearch);
+                roundPostsList.addAll(searchResult);
             }
             postsList.addAll(roundPostsList);
             if(postsList.size() >= search.getMaxTotalResults())
@@ -69,12 +80,41 @@ public class Campaign {
 
     private void filterData(List<Post> postsList) {
         //filter titles
-        for (Post post: postsList) {
-            String title = post.getTitle();
-            String filteredTitle = TextCleaning.removeStopWords(title);
-            //TODO: remove punctuation and 1 letter words
-            post.setTitle(filteredTitle);
-        }
+        //TODO: remove all files code after testing ends.
+        try {/*TEST*/
+            File original = new ClassPathResource("original.txt").getFile();/*TEST*/
+            File filtered = new ClassPathResource("filtered.txt").getFile();/*TEST*/
+            if(!original.exists()) original.createNewFile();/*TEST*/
+            if(!filtered.exists()) filtered.createNewFile();/*TEST*/
+
+
+            FileWriter originalWriter = new FileWriter(original.getName(),true);/*TEST*/
+            FileWriter filteredWriter = new FileWriter(filtered.getName(),true);/*TEST*/
+
+            BufferedWriter originalBufferWriter = new BufferedWriter(originalWriter);/*TEST*/
+            BufferedWriter filteredBufferWriter = new BufferedWriter(filteredWriter);/*TEST*/
+
+            for (Post post: postsList) {
+                String title = post.getTitle();
+                originalBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
+                originalBufferWriter.flush();/*TEST*/
+                title = TextCleaning.removeStopWords(title);
+                title = TextCleaning.removeNoneLetters(title);
+                title = TextCleaning.removeOneLetterWords(title);
+                post.setTitle(title);
+                filteredBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
+                filteredBufferWriter.flush();/*TEST*/
+            }
+
+            originalBufferWriter.close();/*TEST*/
+            filteredBufferWriter.close();/*TEST*/
+
+            originalWriter.close();/*TEST*/
+            filteredWriter.close();/*TEST*/
+            System.out.println("Done");/*TEST*/
+        } catch(IOException e){/*TEST*/
+            e.printStackTrace();/*TEST*/
+        }/*TEST*/
     }
 
     private String[] getMostFrequentWords(List<Post> postList) {
@@ -97,6 +137,8 @@ public class Campaign {
                 .limit(COUNT_OF_EVOLVED_WORDS)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+        for (String t : list)
+            logger.info(t);
         return list.stream().toArray(String[]::new);
     }
 
@@ -104,7 +146,7 @@ public class Campaign {
     {
         for (String[] roundArray: this.evolvedWords) {
             for (String evolvedWord:roundArray) {
-                if (word.equals(evolvedWord))
+                if (word.equalsIgnoreCase(evolvedWord) || search.getSearchKeywords().toLowerCase().contains(word))
                     return false;
             }
         }

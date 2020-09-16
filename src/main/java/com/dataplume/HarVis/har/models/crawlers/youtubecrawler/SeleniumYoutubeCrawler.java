@@ -71,6 +71,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             //ArrayList<String> tabs = openNewTab(driver, href);
 
             // the constructor
+            //TODO: switch the constructor parameters to take all video data (not just list page data and dummies for the rest)
             Post video = new Post(
                     title,
                     briefDescription,//getDescription(driver),

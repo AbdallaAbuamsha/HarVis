@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class TextCleaning {
 
     public static List<String> WORD_2B_FILTERED;
-
+    private final String DELIM = " _-=+&\t\n.,:;?!@#$%^&*~/{}()[]\"\'1234567890";
     public static void fillWordsToBeFiltered()
     {
         try
@@ -47,5 +47,16 @@ public class TextCleaning {
         textWordsList.removeAll(WORD_2B_FILTERED);
 
         return String.join(" ", textWordsList);
+    }
+
+    public static String removeNoneLetters(String title) {
+        return  title.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}]", " ")
+                .replaceAll(" +", " ")
+                .trim();
+    }
+
+    public static String removeOneLetterWords(String title) {
+        return title.replaceAll("(?>^[\\p{L}\\p{N}]\\s+|(\\s+[\\p{L}\\p{N}])+$)"," ")
+                .replaceAll(" +", " ");
     }
 }
