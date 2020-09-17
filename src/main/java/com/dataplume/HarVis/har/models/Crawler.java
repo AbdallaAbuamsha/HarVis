@@ -12,12 +12,13 @@ public abstract class Crawler {
     }
 
     public abstract List<Post> getData();
-    public abstract String getTitle();
-    public abstract String getDescription();
-    public abstract String getDate();
-    public abstract String getPublisher();
-    public abstract String getId();
-    public abstract long getViewsCount();
-    public abstract long getLikesCount();
-    public abstract long getDisLikesCount();
+    public abstract String getTitle(Object o);
+    public abstract String getDescription(Object o);
+    public abstract String getDate(Object o);
+    public abstract String getPublisher(Object o);
+    public abstract String getId(Object o);
+    public abstract long getViewsCount(Object o);
+    public abstract long getLikesCount(Object o);
+    public abstract long getDisLikesCount(Object o);
+    public abstract List<Comment> getComments(Object o);
 }

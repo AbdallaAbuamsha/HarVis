@@ -8,6 +8,13 @@ public class Comment {
     public Comment() {
     }
 
+    // constructor for test only
+    public Comment(String comment) {
+        this.comment = comment;
+        this.author = null;
+        this.author = null;
+    }
+
     public Comment(Comment parent, String comment, Author author) {
         this.parent = parent;
         this.comment = comment;

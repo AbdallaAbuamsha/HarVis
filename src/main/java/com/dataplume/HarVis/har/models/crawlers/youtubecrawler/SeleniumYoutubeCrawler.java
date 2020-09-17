@@ -1,20 +1,31 @@
 package com.dataplume.HarVis.har.models.crawlers.youtubecrawler;
 
+import com.dataplume.HarVis.har.models.Comment;
 import com.dataplume.HarVis.har.models.Post;
 import com.dataplume.HarVis.har.models.Search;
 import com.dataplume.HarVis.har.models.crawlers.YoutubeCrawler;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class SeleniumYoutubeCrawler extends YoutubeCrawler {
+
+    Logger logger = LoggerFactory.getLogger(SeleniumYoutubeCrawler.class);
 
     private static final String CHROME_DRIVER_PATH = "C:\\Users\\Abdalla\\Downloads\\chromedriver.exe";
     private static final String BASE_URL = "https://www.youtube.com/results?search_query=";
@@ -55,81 +66,144 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             driver.get(searchURL);
 
         // get list of video results
-        List<WebElement> elements = null;
-        elements = getEnoughWebElements();
+        List<WebElement> elements = getEnoughWebElements();
         ArrayList<Post> youTubeVideoDataList = new ArrayList<>();
 
         // loop throw each video and open it's page to extract data
         for (int i = 0 ;  i < elements.size() ; i++) {
             WebElement webElement = elements.get(i);
-            WebElement titleElement = webElement.findElement(By.id("video-title"));
-            String title = titleElement.getAttribute("title");
-            String href = titleElement.getAttribute("href");
-            String publisher = webElement.findElement(By.id("byline-container")).findElement(By.tagName("a")).getText();
-            String briefDescription =  webElement.findElement(By.id("description-text")).findElements(By.tagName("span")).stream().map(tag->tag.getText()).collect(Collectors.joining(" "));
-            // open new tab for the video's page
-            //ArrayList<String> tabs = openNewTab(driver, href);
 
+            String href = webElement.findElement(By.id("video-title")).getAttribute("href");
+            ArrayList<String> tabs = openNewTab(driver, href);
+            List<Comment> comments= getComments(null);
             // the constructor
-            //TODO: switch the constructor parameters to take all video data (not just list page data and dummies for the rest)
             Post video = new Post(
-                    title,
-                    briefDescription,//getDescription(driver),
+                    getTitle(null),
+                    getDescription(null),
                     search.getSocialMediaType(),
-                    null,
-                    "Jan 1, 1990",//getDate(driver),
-                    getVideoId(href),
-                    2,//getViewsCount(driver),
-                    new ArrayList<>()//getComments(driver),
-                    );
+                    getPublisher(null),
+                    getDate(null),
+                    getId(null),
+                    getViewsCount(null),
+                    comments,
+                    getLikesCount(null),
+                    getDisLikesCount(null));
             System.out.println(video);
             youTubeVideoDataList.add(video);
 
             // Close the video's page tab and back to videos list page
-            //driver.close();
-            //driver.switchTo().window(tabs.get(0)); // switch back to main screen
+            driver.close();
+            driver.switchTo().window(tabs.get(0)); // switch back to main screen
         }
         return youTubeVideoDataList;
     }
 
     @Override
-    public String getTitle() {
-        return null;
+    public String getTitle(Object o) {
+        WebElement titleElement = driver.findElement(By.xpath("//*[@id=\"container\"]/h1/yt-formatted-string"));
+        String title = titleElement.getText();//.getAttribute("title");
+        return title;
     }
 
     @Override
-    public String getDescription() {
-        return null;
+    public String getDescription(Object o) {
+        try {
+            WebElement description = driver.findElement(By.id("description"));
+            try {
+                WebElement showMoreButtonWrapper = driver.findElement(By.className("more-button"));
+                showMoreButtonWrapper.click();
+            } catch (Exception e) { }
+            String descriptionLines = description.findElements(By.tagName("span"))
+                    .stream()
+                    .filter(s -> !s.getText().isBlank())
+                    .map(s -> s.getText())
+                    .collect(Collectors.joining("; "));
+            return descriptionLines;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @Override
-    public String getDate() {
-        return null;
+    public String getDate(Object o) {
+        return driver.findElement(By.xpath("//*[@id=\"date\"]/yt-formatted-string")).getText();
     }
 
     @Override
-    public String getPublisher() {
-        return null;
+    public String getPublisher(Object o) {
+        try {
+            return driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @Override
-    public String getId() {
-        return null;
+    public String getId(Object o) {
+        String href = driver.getCurrentUrl();
+        return href.substring("https://www.youtube.com/watch?v=".length()).trim();
     }
 
     @Override
-    public long getViewsCount() {
-        return 0;
+    public long getViewsCount(Object o) {
+        // Views Count: view-count style-scope yt-view-count-renderer
+        try {
+            WebElement viewsCountWrapper = driver.findElement(By.tagName("yt-view-count-renderer"));
+            WebElement viewsSpan = viewsCountWrapper.findElement(By.className("view-count"));
+            String spanText = viewsSpan.getText();
+            return Long. parseLong(spanText
+                    .replaceAll(",", "")
+                    .replaceAll("views", "")
+                    .replaceAll("view", "")
+                    .trim());
+        } catch (Exception e) {
+             logger.info(e.getMessage());
+        }
+        return -1;
     }
 
     @Override
-    public long getLikesCount() {
-        return 0;
+    public long getLikesCount(Object o) {
+        WebElement container = driver.findElement(By.xpath("//*[@id=\"top-level-buttons\"]/ytd-toggle-button-renderer[1]/a"));
+        long likes =  Long.parseLong(container.findElement(By.tagName("yt-formatted-string"))
+                .getAttribute("aria-label")
+                .replaceAll(",", "")
+                .replaceAll("likes", "")
+                .replaceAll("like", "")
+                .trim());
+        return likes;
     }
 
     @Override
-    public long getDisLikesCount() {
-        return 0;
+    public long getDisLikesCount(Object o) {
+        WebElement container = driver.findElement(By.xpath("//*[@id=\"top-level-buttons\"]/ytd-toggle-button-renderer[2]/a"));
+        long dislikes = Long.parseLong(container.findElement(By.tagName("yt-formatted-string"))
+                .getAttribute("aria-label")
+                .replaceAll(",", "")
+                .replaceAll("dislikes", "")
+                .replaceAll("dislike", "")
+                .trim());
+        return dislikes;
+    }
+
+    @Override
+    public List<Comment> getComments(Object o) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("window.scrollBy(0,700)");
+            Wait<WebDriver> wait = loadRepetitiveAttempts(driver);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"contents\"]")));
+            WebElement commentsWrapper = driver.findElement(By.xpath("//*[@id=\"contents\"]"));
+            List<Comment> comments=new ArrayList<>();
+            commentsWrapper
+                    .findElements(By.xpath("//*[@id=\"content-text\"]"))
+                    .stream()
+                    .map(s -> s.getText())
+                    .forEach(s -> comments.add(new Comment(s)));
+            return comments;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private List<WebElement> getEnoughWebElements() {
@@ -156,11 +230,20 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                 .limit(search.getMaxSearchResults())
                 .collect(Collectors.toList());
     }
-    @JsonIgnore
-    public String getVideoId(String href)
-    {
-        if(href == null || href.isEmpty())
-            return "";
-        return href.substring("https://www.youtube.com/watch?v=".length()).trim();
+
+    @NotNull
+    private static ArrayList<String> openNewTab(ChromeDriver driver, String href) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript(String.format("window.open('%s','_blank');", href));
+        ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
+        driver.switchTo().window(tabs.get(1)); //switches to new tab
+        return tabs;
+    }
+
+    private static Wait<WebDriver> loadRepetitiveAttempts(ChromeDriver driver) {
+        return new FluentWait<WebDriver>(driver)
+                .withTimeout(Duration.ofSeconds(15))
+                .pollingEvery(Duration.ofSeconds(3))
+                .ignoring(NoSuchElementException.class);
     }
 }

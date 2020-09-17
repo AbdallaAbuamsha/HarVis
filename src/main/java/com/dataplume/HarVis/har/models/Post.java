@@ -8,24 +8,29 @@ public class Post {
     private String title;
     private String description;
     private SocialMediaType socialMediaType;
-    private Author author;
+    private String publisher;
     private String date;
     private String id;
     private long viewsCount;
+    private long likesCount;
+    private long dislikesCount;
+
     private List<Comment> comments;
 
     public Post() {
     }
 
-    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String id, long viewsCount, List<Comment> comments) {
+    public Post(String title, String description, SocialMediaType socialMediaType, String publisher, String date, String id, long viewsCount, List<Comment> comments, long likesCount, long dislikesCount) {
         this.title = title;
         this.description = description;
         this.socialMediaType = socialMediaType;
-        this.author = author;
+        this.publisher = publisher;
         this.date = date;
         this.id = id;
         this.viewsCount = viewsCount;
         this.comments = comments;
+        this.likesCount = likesCount;
+        this.dislikesCount = dislikesCount;
     }
 
     public String getTitle() {
@@ -52,12 +57,12 @@ public class Post {
         this.socialMediaType = socialMediaType;
     }
 
-    public Author getAuthor() {
-        return author;
+    public String getPublisher() {
+        return publisher;
     }
 
-    public void setAuthor(Author author) {
-        this.author = author;
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
     }
 
     public String getDate() {
