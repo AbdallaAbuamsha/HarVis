@@ -212,7 +212,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         //TODO: check if old results can be used again
         //TODO: check campaign mode to accept or reject post
-        while (numberOfElementsInPage < search.getMaxSearchResults())
+        while (numberOfElementsInPage < search.getMaxSearchResults() || search.getMaxSearchResults() == -1)
         {
             js.executeScript("window.scrollBy(0,700)");
             elements = driver.findElements(By.tagName("ytd-video-renderer"));
@@ -227,7 +227,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             }
         }
         return elements.stream()
-                .limit(search.getMaxSearchResults())
+                .limit((search.getMaxSearchResults() == -1)?elements.size():search.getMaxSearchResults())
                 .collect(Collectors.toList());
     }
 
