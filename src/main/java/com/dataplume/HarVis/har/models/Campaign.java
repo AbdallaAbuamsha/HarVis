@@ -1,5 +1,6 @@
 package com.dataplume.HarVis.har.models;
 
+import com.dataplume.HarVis.har.enums.SocialMediaType;
 import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumYoutubeCrawler;
 import com.dataplume.HarVis.utils.exceptionshandlers.TextCleaning;
 import org.slf4j.Logger;
@@ -29,27 +30,27 @@ public class Campaign {
 
     public List<Post> startCrawling()
     {
-        Crawler crawler = null;
-        switch (search.getSocialMediaType())
-        {
-            case TWITTER:
-                //crawler = new TwitterCrawler(search);
-                break;
-            case YOUTUBE:
-                crawler = new SeleniumYoutubeCrawler(search);
-                break;
-            case FACEBOOK:
-                //crawler = new FacebookCrawler(search);
-                break;
-        }
-        if(crawler == null)
-            throw new NullPointerException();
+        Crawler crawler = createCrawler(search.getSocialMediaType());
         List<Post> postsList = crawler.getData();
         filterData(postsList);
         evolve(crawler, postsList);
         //TODO: save the data
 
         return postsList;
+    }
+
+    private Crawler createCrawler(SocialMediaType socialMediaType) {
+        switch (socialMediaType)
+        {
+            case TWITTER:
+                //return new TwitterCrawler(search);
+            case YOUTUBE:
+                return new SeleniumYoutubeCrawler(search);
+            case FACEBOOK:
+                //return new FacebookCrawler(search);
+            default:
+                throw new NullPointerException();
+        }
     }
 
     private List<Post> evolve(Crawler crawler, List<Post> postsList) {
