@@ -82,41 +82,13 @@ public class Campaign {
 
     private void filterData(List<Post> postsList) {
         //filter titles
-        //TODO: remove all files code after testing ends.
-        try {/*TEST*/
-            File original = new ClassPathResource("original.txt").getFile();/*TEST*/
-            File filtered = new ClassPathResource("filtered.txt").getFile();/*TEST*/
-            if(!original.exists()) original.createNewFile();/*TEST*/
-            if(!filtered.exists()) filtered.createNewFile();/*TEST*/
-
-
-            FileWriter originalWriter = new FileWriter(original.getName(),true);/*TEST*/
-            FileWriter filteredWriter = new FileWriter(filtered.getName(),true);/*TEST*/
-
-            BufferedWriter originalBufferWriter = new BufferedWriter(originalWriter);/*TEST*/
-            BufferedWriter filteredBufferWriter = new BufferedWriter(filteredWriter);/*TEST*/
-
-            for (Post post: postsList) {
-                String title = post.getTitle();
-                originalBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
-                originalBufferWriter.flush();/*TEST*/
-                title = TextCleaning.removeStopWords(title);
-                title = TextCleaning.removeNoneLetters(title);
-                title = TextCleaning.removeOneLetterWords(title);
-                post.setTitle(title);
-                filteredBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
-                filteredBufferWriter.flush();/*TEST*/
-            }
-
-            originalBufferWriter.close();/*TEST*/
-            filteredBufferWriter.close();/*TEST*/
-
-            originalWriter.close();/*TEST*/
-            filteredWriter.close();/*TEST*/
-            System.out.println("Done");/*TEST*/
-        } catch(IOException e){/*TEST*/
-            e.printStackTrace();/*TEST*/
-        }/*TEST*/
+        for (Post post : postsList) {
+            String title = post.getTitle();
+            title = TextCleaning.removeStopWords(title);
+            title = TextCleaning.removeNoneLetters(title);
+            title = TextCleaning.removeOneLetterWords(title);
+            post.setTitle(title);
+        }
     }
 
     private String[] getMostFrequentWords(List<Post> postList) {
