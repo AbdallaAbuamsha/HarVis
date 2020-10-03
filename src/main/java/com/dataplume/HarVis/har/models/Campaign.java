@@ -1,6 +1,7 @@
 package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
+import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumLightYoutubeCrawler;
 import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumYoutubeCrawler;
 import com.dataplume.HarVis.utils.exceptionshandlers.TextCleaning;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class Campaign {
             case TWITTER:
                 //return new TwitterCrawler(search);
             case YOUTUBE:
-                return new SeleniumYoutubeCrawler(search);
+                return new SeleniumLightYoutubeCrawler(search);
             case FACEBOOK:
                 //return new FacebookCrawler(search);
             default:

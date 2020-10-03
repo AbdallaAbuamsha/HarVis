@@ -20,6 +20,19 @@ public class Post {
     public Post() {
     }
 
+    public Post(String title, String description, SocialMediaType socialMediaType, String publisher, String date, String id, long viewsCount) {
+        this.title = title;
+        this.description = description;
+        this.socialMediaType = socialMediaType;
+        this.publisher = publisher;
+        this.date = date;
+        this.id = id;
+        this.viewsCount = viewsCount;
+        this.comments = null;
+        this.likesCount = -1;
+        this.dislikesCount = -1;
+    }
+
     public Post(String title, String description, SocialMediaType socialMediaType, String publisher, String date, String id, long viewsCount, List<Comment> comments, long likesCount, long dislikesCount) {
         this.title = title;
         this.description = description;
@@ -95,5 +108,21 @@ public class Post {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +'\n'+
+                "title='" + title + '\'' +'\n'+
+                ", description='" + description + '\'' +'\n'+
+                ", socialMediaType=" + socialMediaType +'\n'+
+                ", publisher='" + publisher + '\'' +'\n'+
+                ", date='" + date + '\'' +'\n'+
+                ", id='" + id + '\'' +'\n'+
+                ", viewsCount=" + viewsCount +'\n'+
+                ", likesCount=" + likesCount +'\n'+
+                ", dislikesCount=" + dislikesCount +'\n'+
+                ", comments=" + comments +'\n'+
+                '}';
     }
 }

@@ -47,6 +47,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             ChromeOptions options = new ChromeOptions();
             //options.addArguments("--headless");
             driver = new ChromeDriver(options);
+            driver.manage().window().maximize();
         }
     }
 
