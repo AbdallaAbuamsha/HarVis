@@ -1,9 +1,8 @@
 package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
-import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumLightYoutubeCrawler;
 import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumYoutubeCrawler;
-import com.dataplume.HarVis.utils.exceptionshandlers.TextCleaning;
+import com.dataplume.HarVis.utils.TextCleaning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;

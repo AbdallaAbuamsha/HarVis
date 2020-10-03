@@ -1,4 +1,4 @@
-package com.dataplume.HarVis.utils.exceptionshandlers;
+package com.dataplume.HarVis.utils;
 
 import org.springframework.core.io.ClassPathResource;
 
