@@ -89,8 +89,7 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
         try {
             WebElement webElement = (WebElement) o;
             WebElement titleElement = webElement.findElement(By.id("video-title"));
-            String title = titleElement.getAttribute("title");
-            return title;
+            return titleElement.getAttribute("title");
         }
         catch (Exception e)
         {
@@ -120,8 +119,7 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
         try {
             WebElement webElement = (WebElement) o;
             WebElement metaDataLine = webElement.findElement(By.id("metadata-line"));
-            String date = metaDataLine.findElements(By.tagName("span")).get(1).getText();
-            return date;
+            return metaDataLine.findElements(By.tagName("span")).get(1).getText();
         } catch (Exception e) {
             logger.error(e.getMessage());
             return "";
@@ -143,8 +141,7 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
     public String getId(Object o) {
         try {
             WebElement webElement = (WebElement) o;
-            WebElement titleElement = webElement.findElement(By.id("video-title"));
-            String href = titleElement.getAttribute("href");
+            String href = webElement.findElement(By.id("video-title")).getAttribute("href");
             return href.substring("https://www.youtube.com/watch?v=".length()).trim();
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -192,15 +189,12 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
     }
 
     private List<WebElement> getEnoughWebElements() {
-        int numberOfElementsInPage = 0;
         List<WebElement> elements = new ArrayList<>();
-        //TODO: check if old results can be used again
         //TODO: check campaign mode to accept or reject post
-        while (numberOfElementsInPage < search.getMaxSearchResults() || search.getMaxSearchResults() == -1)
+        while (elements.size() < search.getMaxSearchResults() || search.getMaxSearchResults() == -1)
         {
             driver.findElement(By.cssSelector("body")).sendKeys(Keys.CONTROL, Keys.END);
             elements = driver.findElements(By.tagName("ytd-video-renderer"));
-            numberOfElementsInPage = elements.size();
 
             try {
                 if (driver.findElement(By.xpath("//*[@id=\"message-button\"]")) != null)

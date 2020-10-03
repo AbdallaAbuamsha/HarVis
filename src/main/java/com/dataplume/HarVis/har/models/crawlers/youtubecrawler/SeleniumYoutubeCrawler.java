@@ -76,7 +76,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
 
             String href = webElement.findElement(By.id("video-title")).getAttribute("href");
             ArrayList<String> tabs = openNewTab(driver, href);
-            List<Comment> comments= getComments(null);
+            List<Comment> comments= null;//getComments(null);
             // the constructor
             Post video = new Post(
                     getTitle(null),
@@ -101,9 +101,16 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
 
     @Override
     public String getTitle(Object o) {
-        WebElement titleElement = driver.findElement(By.xpath("//*[@id=\"container\"]/h1/yt-formatted-string"));
-        String title = titleElement.getText();//.getAttribute("title");
-        return title;
+        try {
+            WebElement titleElement = driver.findElement(By.xpath("//*[@id=\"container\"]/h1/yt-formatted-string"));
+            String title = titleElement.getText();//.getAttribute("title");
+            return title;
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return driver.getTitle();
+        }
     }
 
     @Override
@@ -120,29 +127,52 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                     .map(s -> s.getText())
                     .collect(Collectors.joining("; "));
             return descriptionLines;
-        } catch (Exception e) {
-            return e.getMessage();
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return "";
         }
     }
 
     @Override
     public String getDate(Object o) {
-        return driver.findElement(By.xpath("//*[@id=\"date\"]/yt-formatted-string")).getText();
+        try {
+            return driver.findElement(By.xpath("//*[@id=\"date\"]/yt-formatted-string")).getText();
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+            return "";
+        }
     }
 
     @Override
     public String getPublisher(Object o) {
         try {
             return driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText();
-        } catch (Exception e) {
-            return e.getMessage();
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            try {
+                return driver.findElement(By.tagName("ytd-channel-name")).findElement(By.tagName("a")).getText();
+            }
+            catch (Exception ee) {
+                logger.error(ee.getMessage());
+                return "";
+            }
         }
     }
 
     @Override
     public String getId(Object o) {
-        String href = driver.getCurrentUrl();
-        return href.substring("https://www.youtube.com/watch?v=".length()).trim();
+        try {
+            String href = driver.getCurrentUrl();
+            return href.substring("https://www.youtube.com/watch?v=".length()).trim();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return "";
+        }
     }
 
     @Override
@@ -159,12 +189,14 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                     .trim());
         } catch (Exception e) {
              logger.info(e.getMessage());
+             return -1;
         }
-        return -1;
+
     }
 
     @Override
     public long getLikesCount(Object o) {
+        try {
         WebElement container = driver.findElement(By.xpath("//*[@id=\"top-level-buttons\"]/ytd-toggle-button-renderer[1]/a"));
         long likes =  Long.parseLong(container.findElement(By.tagName("yt-formatted-string"))
                 .getAttribute("aria-label")
@@ -173,10 +205,17 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                 .replaceAll("like", "")
                 .trim());
         return likes;
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return -1;
+        }
     }
 
     @Override
     public long getDisLikesCount(Object o) {
+        try{
         WebElement container = driver.findElement(By.xpath("//*[@id=\"top-level-buttons\"]/ytd-toggle-button-renderer[2]/a"));
         long dislikes = Long.parseLong(container.findElement(By.tagName("yt-formatted-string"))
                 .getAttribute("aria-label")
@@ -185,6 +224,12 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                 .replaceAll("dislike", "")
                 .trim());
         return dislikes;
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return -1;
+        }
     }
 
     @Override
@@ -202,7 +247,10 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
                     .map(s -> s.getText())
                     .forEach(s -> comments.add(new Comment(s)));
             return comments;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
             return null;
         }
     }

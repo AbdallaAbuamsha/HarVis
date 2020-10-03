@@ -46,7 +46,7 @@ public class Campaign {
             case TWITTER:
                 //return new TwitterCrawler(search);
             case YOUTUBE:
-                return new SeleniumLightYoutubeCrawler(search);
+                return new SeleniumYoutubeCrawler(search);
             case FACEBOOK:
                 //return new FacebookCrawler(search);
             default:
