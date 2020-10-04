@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("")
+    @GetMapping
     ResponseEntity<List<User>> getAll()
     {
         return ResponseEntity.ok(userService.getAll());
@@ -33,10 +34,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
-    public User update(@RequestBody User user)
-    {
-        //return userService.update(user);
-        return null;
+    public ResponseEntity<User> update(@Valid @RequestBody User user) throws ValidationException {
+        return ResponseEntity.ok(userService.update(user));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
