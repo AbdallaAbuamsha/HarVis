@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.xml.bind.ValidationException;
 import java.util.List;
 
 @Controller
@@ -29,7 +30,13 @@ public class RoleController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<Role> getById(@PathVariable long id) throws NotFoundException {
+    public ResponseEntity<Role> getById(@PathVariable long id) throws ValidationException {
         return ResponseEntity.ok(roleService.getById(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<Object> getById() {
+        return ResponseEntity.ok(roleService.getAllUserRoles());
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +21,16 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Role getById(Long id) throws NotFoundException {
+    public Role getById(Long id) throws ValidationException {
         Optional<Role> role = roleRepository.findById(id);
         if(role.isPresent())
             return role.get();
-        throw new NotFoundException(("role with id "+id+" not found"));
+        throw new ValidationException(("role "+id+" is not found"));
     }
+
+    public Object getAllUserRoles() {
+        return roleRepository.getAllUsersRoles();
+    }
+
+
 }

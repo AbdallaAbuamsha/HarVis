@@ -1,6 +1,6 @@
 package com.dataplume.HarVis.exceptions;
 
-import com.dataplume.HarVis.auth.RoleInitializer;
+import com.dataplume.HarVis.auth.AuthInitializer;
 import io.jsonwebtoken.JwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import java.util.Map;
 @ControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
-    Logger logger = LoggerFactory.getLogger(RoleInitializer.class);
+    Logger logger = LoggerFactory.getLogger(AuthInitializer.class);
 
     @ExceptionHandler(value = { Exception.class })
     public @ResponseBody
@@ -34,7 +34,7 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value={JwtException.class, AccessDeniedException.class})
     //@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public @ResponseBody
-    ResponseEntity handleJwtException(JwtException ex) {
+    ResponseEntity<Map<String, Object>> handleJwtException(JwtException ex) {
         logger.error(ex.getClass()+" - "+ex.getMessage());
         Map<String, Object> errorInfo = new HashMap<>();
         errorInfo.put("message", ex.getLocalizedMessage());

@@ -2,13 +2,11 @@ package com.dataplume.HarVis.auth.controllers;
 
 import com.dataplume.HarVis.auth.models.User;
 import com.dataplume.HarVis.auth.security.services.UserService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.ValidationException;
@@ -43,9 +41,9 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id)
-    {
+    public ResponseEntity delete(@PathVariable Long id) throws ValidationException {
         userService.delete(id);
+         return new ResponseEntity(HttpStatus.OK);
     }
 
 
