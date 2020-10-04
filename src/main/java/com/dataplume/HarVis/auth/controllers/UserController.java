@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getById(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PutMapping
     public ResponseEntity<User> update(@Valid @RequestBody User user) throws ValidationException {
         return ResponseEntity.ok(userService.update(user));

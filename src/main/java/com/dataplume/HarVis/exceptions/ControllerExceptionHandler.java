@@ -22,17 +22,6 @@ public class ControllerExceptionHandler {
 
     Logger logger = LoggerFactory.getLogger(AuthInitializer.class);
 
-//    @ExceptionHandler(value = { Exception.class })
-//    public @ResponseBody
-//    ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-//        logger.error(ex.getClass()+" - "+ex.getMessage());
-//        Map<String, Object> errorInfo = new HashMap<>();
-//        errorInfo.put("message", ex.getMessage());
-//        errorInfo.put("status", HttpStatus.BAD_REQUEST);
-//        errorInfo.put("status_code", HttpStatus.BAD_REQUEST.value());
-//        return new ResponseEntity<>(errorInfo, HttpStatus.BAD_REQUEST);
-//    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentsValidationExceptions(MethodArgumentNotValidException ex) {
         logger.error("Invalid Input MethodArgumentNotValidException: ",ex.getMessage());
@@ -70,13 +59,4 @@ public class ControllerExceptionHandler {
         logger.error(ex.getClass()+" - "+ex.getMessage());
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
-
-//    org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'handlerExceptionResolver'
-//    defined in class path resource [/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Bean instantiation via factory method failed;
-//    nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.web.servlet.HandlerExceptionResolver]:
-//    Factory method 'handlerExceptionResolver' threw exception; nested exception is java.lang.IllegalStateException: Ambiguous @ExceptionHandler method mapped for [class org.springframework.web.bind.MethodArgumentNotValidException]:
-//    {public org.springframework.http.ResponseEntity
-//    com.dataplume.HarVis.exceptions.ControllerExceptionHandler.handleValidationExceptions(org.springframework.web.bind.MethodArgumentNotValidException)
-//    , public final .ResponseEntityExceptionHandler.handleException(java.lang.Exception,org.springframework.web.context.request.WebRequest) throws java.lang.Exception}
-
 }
