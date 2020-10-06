@@ -1,9 +1,7 @@
 package com.dataplume.HarVis.har.models.crawlers.youtubecrawler;
 
-import com.dataplume.HarVis.har.models.Comment;
-import com.dataplume.HarVis.har.models.Post;
-import com.dataplume.HarVis.har.models.Search;
-import com.dataplume.HarVis.har.models.crawlers.YoutubeCrawler;
+import com.dataplume.HarVis.har.enums.AuthorType;
+import com.dataplume.HarVis.har.models.*;
 import com.sun.istack.NotNull;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -23,7 +21,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-public class SeleniumYoutubeCrawler extends YoutubeCrawler {
+public class SeleniumYoutubeCrawler extends Crawler {
 
     Logger logger = LoggerFactory.getLogger(SeleniumYoutubeCrawler.class);
 
@@ -51,15 +49,15 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
         }
     }
 
-    public SeleniumYoutubeCrawler(Search search) {
-        super(search);
+    public SeleniumYoutubeCrawler(SearchWord searchWord) {
+        super(searchWord);
     }
 
     @Override
     public List<Post> getData() {
         openBrowserIfNotExist();
 
-        String searchString = search.getSearchKeywords().replaceAll(" ", "+");
+        String searchString = searchWord.getFullSearchWords().replaceAll(" ", "+");
         String searchURL = BASE_URL + searchString;
 
         // initialize selenium and webdriver
@@ -81,14 +79,14 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             Post video = new Post(
                     getTitle(null),
                     getDescription(null),
-                    search.getSocialMediaType(),
-                    getPublisher(null),
+                    searchWord.getSearch().getSocialMediaType(),
+                    getAuthor(null),
                     getDate(null),
                     getId(null),
                     getViewsCount(null),
                     comments,
                     getLikesCount(null),
-                    getDisLikesCount(null));
+                    getDisLikesCount(null), searchWord);
             System.out.println(video);
             youTubeVideoDataList.add(video);
 
@@ -147,19 +145,19 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
     }
 
     @Override
-    public String getPublisher(Object o) {
+    public Author getAuthor(Object o) {
         try {
-            return driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText();
+            return new Author(driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText(), "", searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
         }
         catch (Exception e)
         {
             logger.error(e.getMessage());
             try {
-                return driver.findElement(By.tagName("ytd-channel-name")).findElement(By.tagName("a")).getText();
+                return new Author(driver.findElement(By.tagName("ytd-channel-name")).findElement(By.tagName("a")).getText(), "", searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
             }
             catch (Exception ee) {
                 logger.error(ee.getMessage());
-                return "";
+                return null;
             }
         }
     }
@@ -240,12 +238,13 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             Wait<WebDriver> wait = loadRepetitiveAttempts(driver);
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"contents\"]")));
             WebElement commentsWrapper = driver.findElement(By.xpath("//*[@id=\"contents\"]"));
+            //TODO: GET AUTHOR NAME!!!!
             List<Comment> comments=new ArrayList<>();
             commentsWrapper
                     .findElements(By.xpath("//*[@id=\"content-text\"]"))
                     .stream()
                     .map(s -> s.getText())
-                    .forEach(s -> comments.add(new Comment(s)));
+                    .forEach(s -> comments.add(new Comment(s, new Author("", "", searchWord.getSearch().getSocialMediaType(), AuthorType.COMMENTATOR), null)));
             return comments;
         }
         catch (Exception e)
@@ -261,7 +260,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         //TODO: check if old results can be used again
         //TODO: check campaign mode to accept or reject post
-        while (numberOfElementsInPage < search.getMaxSearchResults() || search.getMaxSearchResults() == -1)
+        while (numberOfElementsInPage < searchWord.getSearch().getMaxSearchResults() || searchWord.getSearch().getMaxSearchResults() == -1)
         {
             js.executeScript("window.scrollBy(0,700)");
             elements = driver.findElements(By.tagName("ytd-video-renderer"));
@@ -276,7 +275,7 @@ public class SeleniumYoutubeCrawler extends YoutubeCrawler {
             }
         }
         return elements.stream()
-                .limit((search.getMaxSearchResults() == -1)?elements.size():search.getMaxSearchResults())
+                .limit((searchWord.getSearch().getMaxSearchResults() == -1)?elements.size():searchWord.getSearch().getMaxSearchResults())
                 .collect(Collectors.toList());
     }
 

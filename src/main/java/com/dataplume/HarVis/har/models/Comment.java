@@ -1,32 +1,32 @@
 package com.dataplume.HarVis.har.models;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
 public class Comment {
-    private Comment parent;
+
+    @Id
+    private Long id;
+
     private String comment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Author author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
 
     public Comment() {
     }
 
-    // constructor for test only
-    public Comment(String comment) {
-        this.comment = comment;
-        this.author = null;
-        this.author = null;
-    }
 
-    public Comment(Comment parent, String comment, Author author) {
-        this.parent = parent;
+    public Comment(String comment, Author author, Post post) {
         this.comment = comment;
         this.author = author;
-    }
-
-    public Comment getParent() {
-        return parent;
-    }
-
-    public void setParent(Comment parent) {
-        this.parent = parent;
+        this.post = post;
     }
 
     public String getComment() {
@@ -43,5 +43,17 @@ public class Comment {
 
     public void setAuthor(Author author) {
         this.author = author;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

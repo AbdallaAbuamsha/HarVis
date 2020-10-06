@@ -1,49 +1,74 @@
 package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
+import org.hibernate.validator.constraints.Range;
 
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Post {
-    private String title;
-    private String description;
-    private SocialMediaType socialMediaType;
-    private String publisher;
-    private String date;
+    @Id
     private String id;
+
+    @Range(min = 2, max = 1000)
+    private String title;
+
+    private String description;
+
+    private SocialMediaType socialMediaType;
+
+    private String date;
+
     private long viewsCount;
+
     private long likesCount;
+
     private long dislikesCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable=false)
+    private SearchWord searchWord;
+
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Comment> comments;
 
     public Post() {
     }
 
-    public Post(String title, String description, SocialMediaType socialMediaType, String publisher, String date, String id, long viewsCount) {
+    // lite post, no comments, only data in search list (not video details page)
+    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String id, long viewsCount, SearchWord searchWord) {
         this.title = title;
         this.description = description;
         this.socialMediaType = socialMediaType;
-        this.publisher = publisher;
+        this.author = author;
         this.date = date;
         this.id = id;
         this.viewsCount = viewsCount;
-        this.comments = null;
+        this.searchWord = searchWord;
+
+        this.comments = new ArrayList<>();
         this.likesCount = -1;
         this.dislikesCount = -1;
+        this.searchWord = searchWord;
     }
 
-    public Post(String title, String description, SocialMediaType socialMediaType, String publisher, String date, String id, long viewsCount, List<Comment> comments, long likesCount, long dislikesCount) {
+    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String id, long viewsCount, List<Comment> comments, long likesCount, long dislikesCount, SearchWord searchWord) {
         this.title = title;
         this.description = description;
         this.socialMediaType = socialMediaType;
-        this.publisher = publisher;
+        this.author = author;
         this.date = date;
         this.id = id;
         this.viewsCount = viewsCount;
         this.comments = comments;
         this.likesCount = likesCount;
         this.dislikesCount = dislikesCount;
+        this.searchWord = searchWord;
     }
 
     public String getTitle() {
@@ -70,12 +95,12 @@ public class Post {
         this.socialMediaType = socialMediaType;
     }
 
-    public String getPublisher() {
-        return publisher;
+    public Author getAuthor() {
+        return author;
     }
 
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
     public String getDate() {
@@ -88,10 +113,6 @@ public class Post {
 
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public long getViewsCount() {
@@ -110,19 +131,44 @@ public class Post {
         this.comments = comments;
     }
 
+    public long getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(long likesCount) {
+        this.likesCount = likesCount;
+    }
+
+    public long getDislikesCount() {
+        return dislikesCount;
+    }
+
+    public void setDislikesCount(long dislikesCount) {
+        this.dislikesCount = dislikesCount;
+    }
+
+    public SearchWord getSearchWord() {
+        return searchWord;
+    }
+
+    public void setSearchWord(SearchWord searchWord) {
+        this.searchWord = Post.this.searchWord;
+    }
+
+
     @Override
     public String toString() {
         return "Post{" +'\n'+
                 "title='" + title + '\'' +'\n'+
                 ", description='" + description + '\'' +'\n'+
                 ", socialMediaType=" + socialMediaType +'\n'+
-                ", publisher='" + publisher + '\'' +'\n'+
+                ", author='" + author.getName() + '\'' +'\n'+
                 ", date='" + date + '\'' +'\n'+
                 ", id='" + id + '\'' +'\n'+
                 ", viewsCount=" + viewsCount +'\n'+
                 ", likesCount=" + likesCount +'\n'+
                 ", dislikesCount=" + dislikesCount +'\n'+
-                ", comments=" + comments +'\n'+
+                //", comments=" + comments +'\n'+
                 '}';
     }
 }

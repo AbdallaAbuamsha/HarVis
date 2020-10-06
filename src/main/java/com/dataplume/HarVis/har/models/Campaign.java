@@ -1,13 +1,16 @@
 package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
-import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumYoutubeCrawler;
+import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumLightYoutubeCrawler;
 import com.dataplume.HarVis.utils.TextCleaning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,13 +23,14 @@ public class Campaign {
     private static final int COUNT_OF_EVOLVED_WORDS = 5;
     private Search search;
     private int searchRound;
-    private String[][] evolvedWords;
+//    private String[][] evolvedWords;
 
     public Campaign(Search search) {
         this.search = search;
         this.searchRound = 1;
-        this.evolvedWords = new String[search.getMaxEvolveDepth()][COUNT_OF_EVOLVED_WORDS];
+//        this.evolvedWords = new String[search.getMaxEvolveDepth()][COUNT_OF_EVOLVED_WORDS];
     }
+
 
     public List<Post> startCrawling()
     {
@@ -40,12 +44,13 @@ public class Campaign {
     }
 
     private Crawler createCrawler(SocialMediaType socialMediaType) {
+        SearchWord searchWord = new SearchWord(search.getSearchKeywords(), false, search, 0);
         switch (socialMediaType)
         {
             case TWITTER:
                 //return new TwitterCrawler(search);
             case YOUTUBE:
-                return new SeleniumYoutubeCrawler(search);
+                return new SeleniumLightYoutubeCrawler(searchWord);
             case FACEBOOK:
                 //return new FacebookCrawler(search);
             default:
@@ -53,26 +58,31 @@ public class Campaign {
         }
     }
 
+    List<SearchWord> evolvedSearchWords = new ArrayList<>();
     private List<Post> evolve(Crawler crawler, List<Post> postsList) {
         //TODO: check if evolving will depend on round posts or all posts
         List<Post> roundPostsList = null;
-        String originalKeywordSearch = search.getSearchKeywords();
+        List<SearchWord> lastRoundEvolvedSearchWords = null;
+//        String originalKeywordSearch = search.getSearchKeywords();
         for(searchRound = 0 ; searchRound  < search.getMaxEvolveDepth(); searchRound++) {
-            evolvedWords[searchRound] = (searchRound == 0)?
-                    getMostFrequentWords(postsList)
-                    :getMostFrequentWords(roundPostsList);
-
+//            evolvedWords[searchRound] = (searchRound == 0)?
+//                    getMostFrequentWords(postsList)
+//                    :getMostFrequentWords(roundPostsList);
             roundPostsList = new ArrayList<>();
+            lastRoundEvolvedSearchWords = getMostFrequentWords(postsList)
+                    .stream()
+                    .map(w -> new SearchWord(w, true, search, searchRound+1))
+                    .collect(Collectors.toList());
+
             for(int i = 0 ; i < COUNT_OF_EVOLVED_WORDS ; i++)
             {
-                String newKeywordSearch = search.getSearchKeywords() +" "+ evolvedWords[searchRound][i];
-                search.setSearchKeywords(newKeywordSearch);
+                crawler.setSearchWord(lastRoundEvolvedSearchWords.get(i));
                 List<Post> searchResult = crawler.getData();
                 filterData(searchResult);
-                search.setSearchKeywords(originalKeywordSearch);
                 roundPostsList.addAll(searchResult);
             }
             postsList.addAll(roundPostsList);
+            evolvedSearchWords.addAll(lastRoundEvolvedSearchWords);
             if(postsList.size() >= search.getMaxTotalResults())
                 break;
         }
@@ -97,13 +107,13 @@ public class Campaign {
 
             for (Post post: postsList) {
                 String title = post.getTitle();
-                originalBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
+                originalBufferWriter.write(post.getSearchWord().getFullSearchWords()+" "+ title+"\n");/*TEST*/
                 originalBufferWriter.flush();/*TEST*/
                 title = TextCleaning.removeStopWords(title);
                 title = TextCleaning.removeNoneLetters(title);
                 title = TextCleaning.removeOneLetterWords(title);
                 post.setTitle(title);
-                filteredBufferWriter.write(search.getSearchKeywords()+" "+ title+"\n");/*TEST*/
+                filteredBufferWriter.write(post.getSearchWord().getFullSearchWords()+" "+ title+"\n");/*TEST*/
                 filteredBufferWriter.flush();/*TEST*/
             }
 
@@ -118,7 +128,7 @@ public class Campaign {
         }/*TEST*/
     }
 
-    private String[] getMostFrequentWords(List<Post> postList) {
+    private List<String> getMostFrequentWords(List<Post> postList) {
         // get set of posts
         List<String> titles = postList
                 .stream()
@@ -132,25 +142,16 @@ public class Campaign {
                 .stream()
                 .collect(Collectors.groupingBy(t -> t, Collectors.counting()));
 
+        map.keySet().removeAll(evolvedSearchWords.stream().map(w -> w.getWord()).collect(Collectors.toList()));
+        map.keySet().removeAll(Arrays.asList(search.getSearchKeywords().toLowerCase().split(" ")));
+
         List<String> list = map.entrySet().stream()
-                .filter(m-> isNewWordToEvolve(m.getKey()))
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(COUNT_OF_EVOLVED_WORDS)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         for (String t : list)
             logger.info(t);
-        return list.stream().toArray(String[]::new);
-    }
-
-    private boolean isNewWordToEvolve(String word)
-    {
-        for (String[] roundArray: this.evolvedWords) {
-            for (String evolvedWord:roundArray) {
-                if (word.equalsIgnoreCase(evolvedWord) || search.getSearchKeywords().toLowerCase().contains(word))
-                    return false;
-            }
-        }
-        return true;
+        return list;
     }
 }

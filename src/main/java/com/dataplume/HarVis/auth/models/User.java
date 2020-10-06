@@ -40,6 +40,9 @@ public class User {
 				inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
+//	@OneToMany(fetch = FetchType.LAZY)
+//	private Set<Search> searches;
+
 	public User() {
 	}
 
@@ -51,10 +54,6 @@ public class User {
 
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getUsername() {

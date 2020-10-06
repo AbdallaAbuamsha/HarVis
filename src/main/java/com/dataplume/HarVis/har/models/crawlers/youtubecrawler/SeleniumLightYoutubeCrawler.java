@@ -1,26 +1,18 @@
 package com.dataplume.HarVis.har.models.crawlers.youtubecrawler;
 
-import com.dataplume.HarVis.har.models.Comment;
-import com.dataplume.HarVis.har.models.Post;
-import com.dataplume.HarVis.har.models.Search;
-import com.dataplume.HarVis.har.models.crawlers.YoutubeCrawler;
-import com.sun.istack.NotNull;
+import com.dataplume.HarVis.har.enums.AuthorType;
+import com.dataplume.HarVis.har.models.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
+public class SeleniumLightYoutubeCrawler extends Crawler {
 
     Logger logger = LoggerFactory.getLogger(SeleniumLightYoutubeCrawler.class);
 
@@ -48,15 +40,15 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
         }
     }
 
-    public SeleniumLightYoutubeCrawler(Search search) {
-        super(search);
+    public SeleniumLightYoutubeCrawler(SearchWord searchWord) {
+        super(searchWord);
     }
 
     @Override
     public List<Post> getData() {
         openBrowserIfNotExist();
 
-        String searchString = search.getSearchKeywords().replaceAll(" ", "+");
+        String searchString = searchWord.getFullSearchWords().replaceAll(" ", "+");
         String searchURL = BASE_URL + searchString;
 
         // initialize selenium and webdriver
@@ -72,12 +64,11 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
             WebElement webElement = elements.get(i);
             String title = getTitle(webElement);
             String id = getId(webElement);
-            String publisher = getPublisher(webElement);
+            Author author = getAuthor(webElement);
             String briefDescription =  getDescription(webElement);
             String date = getDate(webElement);
             long viewsCount = getViewsCount(webElement);
-
-            Post video = new Post(title, briefDescription, search.getSocialMediaType(), publisher, date, id, viewsCount);
+            Post video = new Post(title, briefDescription, searchWord.getSearch().getSocialMediaType(), author, date, id, viewsCount, searchWord);
             System.out.println(video);
             youTubeVideoDataList.add(video);
         }
@@ -127,13 +118,17 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
     }
 
     @Override
-    public String getPublisher(Object o) {
+    public Author getAuthor(Object o) {
         try {
             WebElement webElement = (WebElement) o;
-            return webElement.findElement(By.id("byline-container")).findElement(By.tagName("a")).getText();
+            WebElement authorElement = webElement.findElement(By.id("channel-name")).findElement(By.tagName("a"));
+            String name = authorElement.getAttribute("textContent") ;
+            String href = authorElement.getAttribute("href");
+            String channelId = href.substring(href.lastIndexOf('/') + 1);
+            return new Author(name, channelId, searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return e.getMessage();
+            return null;
         }
     }
 
@@ -191,7 +186,7 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
     private List<WebElement> getEnoughWebElements() {
         List<WebElement> elements = new ArrayList<>();
         //TODO: check campaign mode to accept or reject post
-        while (elements.size() < search.getMaxSearchResults() || search.getMaxSearchResults() == -1)
+        while (elements.size() < searchWord.getSearch().getMaxSearchResults() || searchWord.getSearch().getMaxSearchResults() == -1)
         {
             driver.findElement(By.cssSelector("body")).sendKeys(Keys.CONTROL, Keys.END);
             elements = driver.findElements(By.tagName("ytd-video-renderer"));
@@ -205,7 +200,7 @@ public class SeleniumLightYoutubeCrawler extends YoutubeCrawler {
             }
         }
         return elements.stream()
-                .limit((search.getMaxSearchResults() == -1)?elements.size():search.getMaxSearchResults())
+                .limit((searchWord.getSearch().getMaxSearchResults() == -1)?elements.size():searchWord.getSearch().getMaxSearchResults())
                 .collect(Collectors.toList());
     }
 
