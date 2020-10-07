@@ -23,52 +23,50 @@ public class Campaign {
     private static final int COUNT_OF_EVOLVED_WORDS = 5;
     private Search search;
     private int searchRound;
-//    private String[][] evolvedWords;
+
+    List<SearchWord> evolvedSearchWords;
+    List<Post> postsList;
+    List<Author> authorsList;
+    List<Comment> commentsList;
 
     public Campaign(Search search) {
         this.search = search;
-        this.searchRound = 1;
-//        this.evolvedWords = new String[search.getMaxEvolveDepth()][COUNT_OF_EVOLVED_WORDS];
+        evolvedSearchWords = new ArrayList<>();
+        postsList = new ArrayList<>();
+        authorsList = new ArrayList<>();
+        commentsList = new ArrayList<>();
     }
 
 
     public List<Post> startCrawling()
     {
         Crawler crawler = createCrawler(search.getSocialMediaType());
-        List<Post> postsList = crawler.getData();
-        filterData(postsList);
-        evolve(crawler, postsList);
-        //TODO: save the data
+
+        SearchWord startSearchWords = new SearchWord(search.getSearchKeywords(), false, search, 0);
+
+        crawler.getData(startSearchWords);
+
+        List<Post> temp = crawler.getPosts();
+
+        filterData(temp);
+
+        addDataFromCrawler(crawler);
+
+        evolve(crawler);
 
         return postsList;
     }
 
-    private Crawler createCrawler(SocialMediaType socialMediaType) {
-        SearchWord searchWord = new SearchWord(search.getSearchKeywords(), false, search, 0);
-        switch (socialMediaType)
-        {
-            case TWITTER:
-                //return new TwitterCrawler(search);
-            case YOUTUBE:
-                return new SeleniumLightYoutubeCrawler(searchWord);
-            case FACEBOOK:
-                //return new FacebookCrawler(search);
-            default:
-                throw new NullPointerException();
-        }
+    private void addDataFromCrawler(Crawler crawler) {
+        postsList.addAll(crawler.getPosts());
+        authorsList.addAll(crawler.getAuthors());
+        commentsList.addAll(crawler.getComments());
     }
 
-    List<SearchWord> evolvedSearchWords = new ArrayList<>();
-    private List<Post> evolve(Crawler crawler, List<Post> postsList) {
-        //TODO: check if evolving will depend on round posts or all posts
-        List<Post> roundPostsList = null;
+
+    private List<Post> evolve(Crawler crawler) {
         List<SearchWord> lastRoundEvolvedSearchWords = null;
-//        String originalKeywordSearch = search.getSearchKeywords();
         for(searchRound = 0 ; searchRound  < search.getMaxEvolveDepth(); searchRound++) {
-//            evolvedWords[searchRound] = (searchRound == 0)?
-//                    getMostFrequentWords(postsList)
-//                    :getMostFrequentWords(roundPostsList);
-            roundPostsList = new ArrayList<>();
             lastRoundEvolvedSearchWords = getMostFrequentWords(postsList)
                     .stream()
                     .map(w -> new SearchWord(w, true, search, searchRound+1))
@@ -76,12 +74,13 @@ public class Campaign {
 
             for(int i = 0 ; i < COUNT_OF_EVOLVED_WORDS ; i++)
             {
-                crawler.setSearchWord(lastRoundEvolvedSearchWords.get(i));
-                List<Post> searchResult = crawler.getData();
-                filterData(searchResult);
-                roundPostsList.addAll(searchResult);
+                crawler.getData(lastRoundEvolvedSearchWords.get(i));
+                List<Post> searchResultedPosts = crawler.getPosts();
+
+                filterData(searchResultedPosts);
+
+                addDataFromCrawler(crawler);
             }
-            postsList.addAll(roundPostsList);
             evolvedSearchWords.addAll(lastRoundEvolvedSearchWords);
             if(postsList.size() >= search.getMaxTotalResults())
                 break;
@@ -153,5 +152,21 @@ public class Campaign {
         for (String t : list)
             logger.info(t);
         return list;
+    }
+
+
+    private Crawler createCrawler(SocialMediaType socialMediaType) {
+        SearchWord searchWord = new SearchWord(search.getSearchKeywords(), false, search, 0);
+        switch (socialMediaType)
+        {
+            case TWITTER:
+                //return new TwitterCrawler();
+            case YOUTUBE:
+                return new SeleniumLightYoutubeCrawler();
+            case FACEBOOK:
+                //return new FacebookCrawler();
+            default:
+                throw new NullPointerException();
+        }
     }
 }

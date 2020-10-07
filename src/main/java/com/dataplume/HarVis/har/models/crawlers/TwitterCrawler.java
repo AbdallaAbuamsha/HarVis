@@ -5,7 +5,4 @@ import com.dataplume.HarVis.har.models.SearchWord;
 
 public abstract class TwitterCrawler extends Crawler {
 
-    public TwitterCrawler(SearchWord searchWord) {
-        super(searchWord);
-    }
 }

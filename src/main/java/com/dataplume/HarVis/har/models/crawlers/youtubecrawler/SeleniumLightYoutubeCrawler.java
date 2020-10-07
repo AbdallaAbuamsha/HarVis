@@ -40,12 +40,8 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
         }
     }
 
-    public SeleniumLightYoutubeCrawler(SearchWord searchWord) {
-        super(searchWord);
-    }
-
     @Override
-    public List<Post> getData() {
+    public void getData() {
         openBrowserIfNotExist();
 
         String searchString = searchWord.getFullSearchWords().replaceAll(" ", "+");
@@ -57,7 +53,6 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
 
         // get list of video results
         List<WebElement> elements = getEnoughWebElements();
-        ArrayList<Post> youTubeVideoDataList = new ArrayList<>();
 
         // loop throw each video and open it's page to extract data
         for (int i = 0 ;  i < elements.size() ; i++) {
@@ -68,12 +63,16 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
             String briefDescription =  getDescription(webElement);
             String date = getDate(webElement);
             long viewsCount = getViewsCount(webElement);
-            Post video = new Post(title, briefDescription, searchWord.getSearch().getSocialMediaType(), author, date, id, viewsCount, searchWord);
+            Post video = new Post(
+                    title, briefDescription, searchWord.getSearch().getSocialMediaType(), author, date, id, viewsCount, searchWord);
             System.out.println(video);
-            youTubeVideoDataList.add(video);
+            postsList.add(video);
+            authorsList.add(author);
+            // no comments
         }
-        return youTubeVideoDataList;
+        //return youTubeVideoDataList;
     }
+
 
     @Override
     public String getTitle(Object o) {
@@ -179,9 +178,10 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
     }
 
     @Override
-    public List<Comment> getComments(Object o) {
+    public List<Comment> getPostComments(Object o) {
         return null;
     }
+
 
     private List<WebElement> getEnoughWebElements() {
         List<WebElement> elements = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.dataplume.HarVis.har.models.crawlers.youtubecrawler;
 
 import com.dataplume.HarVis.har.enums.AuthorType;
+import com.dataplume.HarVis.har.enums.SocialMediaType;
 import com.dataplume.HarVis.har.models.*;
 import com.sun.istack.NotNull;
 import org.openqa.selenium.By;
@@ -49,12 +50,8 @@ public class SeleniumYoutubeCrawler extends Crawler {
         }
     }
 
-    public SeleniumYoutubeCrawler(SearchWord searchWord) {
-        super(searchWord);
-    }
-
     @Override
-    public List<Post> getData() {
+    public void getData() {
         openBrowserIfNotExist();
 
         String searchString = searchWord.getFullSearchWords().replaceAll(" ", "+");
@@ -66,7 +63,6 @@ public class SeleniumYoutubeCrawler extends Crawler {
 
         // get list of video results
         List<WebElement> elements = getEnoughWebElements();
-        ArrayList<Post> youTubeVideoDataList = new ArrayList<>();
 
         // loop throw each video and open it's page to extract data
         for (int i = 0 ;  i < elements.size() ; i++) {
@@ -76,25 +72,28 @@ public class SeleniumYoutubeCrawler extends Crawler {
             ArrayList<String> tabs = openNewTab(driver, href);
             List<Comment> comments= null;//getComments(null);
             // the constructor
+            String title = getTitle(null);
+            String description = getDescription(null);
+            SocialMediaType socialMediaType = searchWord.getSearch().getSocialMediaType();
+            Author author = getAuthor(null);
+            String date = getDate(null);
+            String id = getId(null);
+            Long viewsCount = getViewsCount(null);
+            Long likesCount = getLikesCount(null);
+            Long dislikesCount = getDisLikesCount(null);
+            getDisLikesCount(null);
             Post video = new Post(
-                    getTitle(null),
-                    getDescription(null),
-                    searchWord.getSearch().getSocialMediaType(),
-                    getAuthor(null),
-                    getDate(null),
-                    getId(null),
-                    getViewsCount(null),
-                    comments,
-                    getLikesCount(null),
-                    getDisLikesCount(null), searchWord);
+                title, description, socialMediaType, author, date, id, viewsCount, comments, likesCount, dislikesCount, searchWord);
             System.out.println(video);
-            youTubeVideoDataList.add(video);
+            postsList.add(video);
+            authorsList.add(author);
+            commentsList.addAll(comments);
 
             // Close the video's page tab and back to videos list page
             driver.close();
             driver.switchTo().window(tabs.get(0)); // switch back to main screen
         }
-        return youTubeVideoDataList;
+        //return youTubeVideoDataList;
     }
 
     @Override
@@ -231,7 +230,7 @@ public class SeleniumYoutubeCrawler extends Crawler {
     }
 
     @Override
-    public List<Comment> getComments(Object o) {
+    public List<Comment> getPostComments(Object o) {
         try {
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript("window.scrollBy(0,700)");

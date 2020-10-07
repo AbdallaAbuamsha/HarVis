@@ -8,7 +8,4 @@ import com.dataplume.HarVis.har.models.SearchWord;
 import java.util.List;
 
 public abstract class YoutubeCrawler extends Crawler {
-    public YoutubeCrawler(SearchWord searchWord) {
-        super(searchWord);
-    }
 }

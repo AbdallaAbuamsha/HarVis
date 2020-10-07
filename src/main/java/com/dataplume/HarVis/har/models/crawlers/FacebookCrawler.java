@@ -9,7 +9,4 @@ import java.util.List;
 
 public abstract class FacebookCrawler extends Crawler{
 
-    public FacebookCrawler(SearchWord searchWord) {
-        super(searchWord);
-    }
 }
