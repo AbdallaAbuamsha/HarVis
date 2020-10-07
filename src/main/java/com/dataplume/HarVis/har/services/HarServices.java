@@ -1,5 +1,6 @@
 package com.dataplume.HarVis.har.services;
 
+import com.dataplume.HarVis.har.models.Author;
 import com.dataplume.HarVis.har.models.Campaign;
 import com.dataplume.HarVis.har.models.Post;
 import com.dataplume.HarVis.har.models.Search;
@@ -31,7 +32,11 @@ public class HarServices {
     {
         //TODO: get old results
         Campaign campaign = new Campaign(search);
-        List<Post> posts = campaign.startCrawling();
+        campaign.startCrawling();
+        List<Author> authors = campaign.getAuthorsList();
+        List<Author> alreadyStoredPublishers = authorRepository.getPublishersBySocialMediaType(search.getSocialMediaType());
+        List<Post> posts = campaign.getPostsList();
+
         return posts;
 
     }

@@ -6,13 +6,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TextCleaning {
+public class TextProcessing {
 
     public static List<String> WORD_2B_FILTERED;
     private final String DELIM = " _-=+&\t\n.,:;?!@#$%^&*~/{}()[]\"\'1234567890";
@@ -58,5 +56,20 @@ public class TextCleaning {
     public static String removeOneLetterWords(String title) {
         return title.replaceAll("(?>^[\\p{L}\\p{N}]\\s+|(\\s+[\\p{L}\\p{N}])+$)"," ")
                 .replaceAll(" +", " ");
+    }
+
+    public static List<String> getWordsListFromStringList(List<String> stirngList) {
+        return stirngList
+                .stream()
+                .map(s -> Arrays.stream(s.split(" "))
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    public static Map<String, Long> getWordsCount(List<String> titles) {
+        return titles
+                .stream()
+                .collect(Collectors.groupingBy(t -> t, Collectors.counting()));
     }
 }

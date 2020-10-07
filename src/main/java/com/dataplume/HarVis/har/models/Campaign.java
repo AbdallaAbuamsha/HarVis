@@ -2,7 +2,7 @@ package com.dataplume.HarVis.har.models;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
 import com.dataplume.HarVis.har.models.crawlers.youtubecrawler.SeleniumLightYoutubeCrawler;
-import com.dataplume.HarVis.utils.TextCleaning;
+import com.dataplume.HarVis.utils.TextProcessing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -14,20 +14,17 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 public class Campaign {
 
     Logger logger = LoggerFactory.getLogger(Campaign.class);
 
-
     private static final int COUNT_OF_EVOLVED_WORDS = 5;
     private Search search;
     private int searchRound;
-
-    List<SearchWord> evolvedSearchWords;
-    List<Post> postsList;
-    List<Author> authorsList;
-    List<Comment> commentsList;
+    private List<SearchWord> evolvedSearchWords;
+    private List<Post> postsList;
+    private List<Author> authorsList;
+    private List<Comment> commentsList;
 
     public Campaign(Search search) {
         this.search = search;
@@ -37,8 +34,7 @@ public class Campaign {
         commentsList = new ArrayList<>();
     }
 
-
-    public List<Post> startCrawling()
+    public void startCrawling()
     {
         Crawler crawler = createCrawler(search.getSocialMediaType());
 
@@ -50,25 +46,26 @@ public class Campaign {
 
         filterData(temp);
 
-        addDataFromCrawler(crawler);
+        appendNewDataFromCrawler(crawler);
 
         evolve(crawler);
-
-        return postsList;
     }
 
-    private void addDataFromCrawler(Crawler crawler) {
+    private void appendNewDataFromCrawler(Crawler crawler) {
         postsList.addAll(crawler.getPosts());
         authorsList.addAll(crawler.getAuthors());
         commentsList.addAll(crawler.getComments());
     }
 
-
     private List<Post> evolve(Crawler crawler) {
         List<SearchWord> lastRoundEvolvedSearchWords = null;
         for(searchRound = 0 ; searchRound  < search.getMaxEvolveDepth(); searchRound++) {
-            lastRoundEvolvedSearchWords = getMostFrequentWords(postsList)
-                    .stream()
+            List<String> mostFrequentWords = getMostFrequentWords(
+                    postsList.stream()
+                            .map(p -> p.getTitle())
+                            .collect(Collectors.toList()));
+
+            lastRoundEvolvedSearchWords = mostFrequentWords.stream()
                     .map(w -> new SearchWord(w, true, search, searchRound+1))
                     .collect(Collectors.toList());
 
@@ -79,7 +76,7 @@ public class Campaign {
 
                 filterData(searchResultedPosts);
 
-                addDataFromCrawler(crawler);
+                appendNewDataFromCrawler(crawler);
             }
             evolvedSearchWords.addAll(lastRoundEvolvedSearchWords);
             if(postsList.size() >= search.getMaxTotalResults())
@@ -97,7 +94,6 @@ public class Campaign {
             if(!original.exists()) original.createNewFile();/*TEST*/
             if(!filtered.exists()) filtered.createNewFile();/*TEST*/
 
-
             FileWriter originalWriter = new FileWriter(original.getName(),true);/*TEST*/
             FileWriter filteredWriter = new FileWriter(filtered.getName(),true);/*TEST*/
 
@@ -108,9 +104,9 @@ public class Campaign {
                 String title = post.getTitle();
                 originalBufferWriter.write(post.getSearchWord().getFullSearchWords()+" "+ title+"\n");/*TEST*/
                 originalBufferWriter.flush();/*TEST*/
-                title = TextCleaning.removeStopWords(title);
-                title = TextCleaning.removeNoneLetters(title);
-                title = TextCleaning.removeOneLetterWords(title);
+                title = TextProcessing.removeStopWords(title);
+                title = TextProcessing.removeNoneLetters(title);
+                title = TextProcessing.removeOneLetterWords(title);
                 post.setTitle(title);
                 filteredBufferWriter.write(post.getSearchWord().getFullSearchWords()+" "+ title+"\n");/*TEST*/
                 filteredBufferWriter.flush();/*TEST*/
@@ -127,19 +123,11 @@ public class Campaign {
         }/*TEST*/
     }
 
-    private List<String> getMostFrequentWords(List<Post> postList) {
+    private List<String> getMostFrequentWords(List<String> stirngList) {
         // get set of posts
-        List<String> titles = postList
-                .stream()
-                .map(p -> Arrays.stream(p.getTitle()
-                        .split(" "))
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        List<String> titles = TextProcessing.getWordsListFromStringList(stirngList);
 
-        Map<String, Long> map = titles
-                .stream()
-                .collect(Collectors.groupingBy(t -> t, Collectors.counting()));
+        Map<String, Long> map = TextProcessing.getWordsCount(titles);
 
         map.keySet().removeAll(evolvedSearchWords.stream().map(w -> w.getWord()).collect(Collectors.toList()));
         map.keySet().removeAll(Arrays.asList(search.getSearchKeywords().toLowerCase().split(" ")));
@@ -149,11 +137,9 @@ public class Campaign {
                 .limit(COUNT_OF_EVOLVED_WORDS)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
-        for (String t : list)
-            logger.info(t);
+
         return list;
     }
-
 
     private Crawler createCrawler(SocialMediaType socialMediaType) {
         SearchWord searchWord = new SearchWord(search.getSearchKeywords(), false, search, 0);
@@ -169,4 +155,17 @@ public class Campaign {
                 throw new NullPointerException();
         }
     }
+
+    public List<Post> getPostsList() {
+        return postsList;
+    }
+
+    public List<Author> getAuthorsList() {
+        return authorsList;
+    }
+
+    public List<Comment> getCommentsList() {
+        return commentsList;
+    }
+
 }
