@@ -74,7 +74,7 @@ public class SeleniumYoutubeCrawler extends Crawler {
             // the constructor
             String title = getTitle(null);
             String description = getDescription(null);
-            SocialMediaType socialMediaType = searchWord.getSearch().getSocialMediaType();
+            SocialMediaType socialMediaType = searchWord.getSearch().getSocialMediaTypeEnum();
             Author author = getAuthor(null);
             String date = getDate(null);
             String id = getId(null);
@@ -146,13 +146,13 @@ public class SeleniumYoutubeCrawler extends Crawler {
     @Override
     public Author getAuthor(Object o) {
         try {
-            return new Author(driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText(), "", searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
+            return new Author(driver.findElement(By.xpath("//*[@id=\"text\"]/a")).getText(), "", searchWord.getSearch().getSocialMediaTypeEnum(), AuthorType.PUBLISHER);
         }
         catch (Exception e)
         {
             logger.error(e.getMessage());
             try {
-                return new Author(driver.findElement(By.tagName("ytd-channel-name")).findElement(By.tagName("a")).getText(), "", searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
+                return new Author(driver.findElement(By.tagName("ytd-channel-name")).findElement(By.tagName("a")).getText(), "", searchWord.getSearch().getSocialMediaTypeEnum(), AuthorType.PUBLISHER);
             }
             catch (Exception ee) {
                 logger.error(ee.getMessage());
@@ -243,7 +243,7 @@ public class SeleniumYoutubeCrawler extends Crawler {
                     .findElements(By.xpath("//*[@id=\"content-text\"]"))
                     .stream()
                     .map(s -> s.getText())
-                    .forEach(s -> comments.add(new Comment(s, new Author("", "", searchWord.getSearch().getSocialMediaType(), AuthorType.COMMENTATOR), null)));
+                    .forEach(s -> comments.add(new Comment(s, new Author("", "", searchWord.getSearch().getSocialMediaTypeEnum(), AuthorType.COMMENTATOR), null)));
             return comments;
         }
         catch (Exception e)

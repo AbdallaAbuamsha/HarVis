@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 public class Post {
     @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private String id;
 
     @Range(min = 2, max = 1000)
@@ -87,8 +88,8 @@ public class Post {
         this.description = description;
     }
 
-    public SocialMediaType getSocialMediaType() {
-        return socialMediaType;
+    public String getSocialMediaType() {
+        return socialMediaType.name();
     }
 
     public void setSocialMediaType(SocialMediaType socialMediaType) {

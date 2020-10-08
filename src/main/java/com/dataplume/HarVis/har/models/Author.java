@@ -6,15 +6,16 @@ import com.sun.istack.Nullable;
 import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.UniqueElements;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.io.Serializable;
 
 //import javax.persistence.OneToMany;
 
 @Entity
-public class Author {
+public class Author implements Serializable {
 
     @Id
+    @GeneratedValue
     private Long id;
 
     @Range(min = 2, max = 1000)
@@ -26,8 +27,10 @@ public class Author {
     @Nullable
     private String location;
 
+    @Enumerated(EnumType.STRING)
     private SocialMediaType socialMediaType;
 
+    @Enumerated(EnumType.STRING)
     private AuthorType authorType;
 
     private long viewsCount;
@@ -72,6 +75,10 @@ public class Author {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -88,20 +95,20 @@ public class Author {
         this.location = location;
     }
 
-    public SocialMediaType getSocialMediaType() {
-        return socialMediaType;
+    public String getSocialMediaType() {
+        return socialMediaType.name();
     }
 
-    public void setSocialMediaType(SocialMediaType socialMediaType) {
-        this.socialMediaType = socialMediaType;
+    public void setSocialMediaType(String socialMediaType) {
+        this.socialMediaType = SocialMediaType.valueOf(socialMediaType);
     }
 
-    public AuthorType getAuthorType() {
-        return authorType;
+    public String getAuthorType() {
+        return authorType.name();
     }
 
-    public void setAuthorType(AuthorType authorType) {
-        this.authorType = authorType;
+    public void setAuthorType(String authorType) {
+        this.authorType = AuthorType.valueOf(authorType);
     }
 
     public long getViewsCount() {

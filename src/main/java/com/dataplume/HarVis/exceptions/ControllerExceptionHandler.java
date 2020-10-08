@@ -17,7 +17,7 @@ import javax.xml.bind.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+//@ControllerAdvice
 public class ControllerExceptionHandler {
 
     Logger logger = LoggerFactory.getLogger(AuthInitializer.class);

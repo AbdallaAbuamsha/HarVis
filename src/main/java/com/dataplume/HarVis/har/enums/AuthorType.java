@@ -1,6 +1,8 @@
 package com.dataplume.HarVis.har.enums;
 
-public enum AuthorType {
+import java.io.Serializable;
+
+public enum AuthorType implements Serializable {
     PUBLISHER,
     COMMENTATOR,
     PUBLISHER_AND_COMMENTATOR

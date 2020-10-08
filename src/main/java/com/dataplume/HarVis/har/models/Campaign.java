@@ -18,9 +18,11 @@ public class Campaign {
 
     Logger logger = LoggerFactory.getLogger(Campaign.class);
 
-    private static final int COUNT_OF_EVOLVED_WORDS = 5;
+    private static final int COUNT_OF_EVOLVED_WORDS = 3;
     private Search search;
     private int searchRound;
+
+
     private List<SearchWord> evolvedSearchWords;
     private List<Post> postsList;
     private List<Author> authorsList;
@@ -36,7 +38,7 @@ public class Campaign {
 
     public void startCrawling()
     {
-        Crawler crawler = createCrawler(search.getSocialMediaType());
+        Crawler crawler = createCrawler(search.getSocialMediaTypeEnum());
 
         SearchWord startSearchWords = new SearchWord(search.getSearchKeywords(), false, search, 0);
 
@@ -168,4 +170,7 @@ public class Campaign {
         return commentsList;
     }
 
+    public List<SearchWord> getEvolvedSearchWords() {
+        return evolvedSearchWords;
+    }
 }

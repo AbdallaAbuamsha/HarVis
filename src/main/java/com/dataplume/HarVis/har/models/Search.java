@@ -16,7 +16,8 @@ import java.util.List;
 public class Search {
 
     @Id
-    private Long id;
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private long id;
 
     @NotNull
     private CampaignMode campaignMode;
@@ -92,8 +93,11 @@ public class Search {
         isNew = aNew;
     }
 
-    public SocialMediaType getSocialMediaType() {
+    public SocialMediaType getSocialMediaTypeEnum() {
         return socialMediaType;
+    }
+    public String getSocialMediaType() {
+        return socialMediaType.name();
     }
 
     public void setSocialMediaType(SocialMediaType socialMediaType) {

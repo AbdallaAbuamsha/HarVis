@@ -64,7 +64,7 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
             String date = getDate(webElement);
             long viewsCount = getViewsCount(webElement);
             Post video = new Post(
-                    title, briefDescription, searchWord.getSearch().getSocialMediaType(), author, date, id, viewsCount, searchWord);
+                    title, briefDescription, searchWord.getSearch().getSocialMediaTypeEnum(), author, date, id, viewsCount, searchWord);
             System.out.println(video);
             postsList.add(video);
             authorsList.add(author);
@@ -124,7 +124,7 @@ public class SeleniumLightYoutubeCrawler extends Crawler {
             String name = authorElement.getAttribute("textContent") ;
             String href = authorElement.getAttribute("href");
             String channelId = href.substring(href.lastIndexOf('/') + 1);
-            return new Author(name, channelId, searchWord.getSearch().getSocialMediaType(), AuthorType.PUBLISHER);
+            return new Author(name, channelId, searchWord.getSearch().getSocialMediaTypeEnum(), AuthorType.PUBLISHER);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;

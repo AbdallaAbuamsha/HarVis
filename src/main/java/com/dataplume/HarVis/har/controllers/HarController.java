@@ -1,5 +1,6 @@
 package com.dataplume.HarVis.har.controllers;
 
+import com.dataplume.HarVis.har.models.Author;
 import com.dataplume.HarVis.har.models.Post;
 import com.dataplume.HarVis.har.models.Search;
 import com.dataplume.HarVis.har.services.HarServices;
@@ -25,7 +26,7 @@ public class HarController extends RuntimeException{
     }
 
     @PostMapping
-    public ResponseEntity<List<Post>> startCampaign(@Valid @RequestBody Search search)
+    public ResponseEntity<List<Author>> startCampaign(@Valid @RequestBody Search search)
     {
         //TODO: validate inputs for bad search keywords
         return new ResponseEntity<>(harServices.startCampaign(search), HttpStatus.OK);
