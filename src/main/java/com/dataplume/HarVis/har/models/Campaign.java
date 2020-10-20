@@ -42,6 +42,8 @@ public class Campaign {
 
         SearchWord startSearchWords = new SearchWord(search.getSearchKeywords(), false, search, 0);
 
+        evolvedSearchWords.add(startSearchWords);
+
         crawler.getData(startSearchWords);
 
         List<Post> temp = crawler.getPosts();

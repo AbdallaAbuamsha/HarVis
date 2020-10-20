@@ -83,7 +83,7 @@ public class SeleniumYoutubeCrawler extends Crawler {
             Long dislikesCount = getDisLikesCount(null);
             getDisLikesCount(null);
             Post video = new Post(
-                title, description, socialMediaType, author, date, id, viewsCount, comments, likesCount, dislikesCount, searchWord);
+                title, description, socialMediaType, author, date, id, viewsCount, /*comments, */likesCount, dislikesCount, searchWord);
             System.out.println(video);
             postsList.add(video);
             authorsList.add(author);

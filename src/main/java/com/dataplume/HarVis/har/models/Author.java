@@ -12,6 +12,9 @@ import java.io.Serializable;
 //import javax.persistence.OneToMany;
 
 @Entity
+@Table(uniqueConstraints={
+        @UniqueConstraint(columnNames = {"idOnSite", "socialMediaType"})
+})
 public class Author implements Serializable {
 
     @Id
@@ -21,7 +24,6 @@ public class Author implements Serializable {
     @Range(min = 2, max = 1000)
     private String name;
 
-    @UniqueElements
     private String idOnSite;
 
     @Nullable
@@ -141,5 +143,10 @@ public class Author implements Serializable {
 
     public void setIdOnSite(String idOnSite) {
         this.idOnSite = idOnSite;
+    }
+
+    @Override
+    public String toString() {
+        return idOnSite;
     }
 }

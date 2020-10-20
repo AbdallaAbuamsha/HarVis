@@ -4,23 +4,25 @@ import com.dataplume.HarVis.har.enums.SocialMediaType;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 @Entity
-public class Post {
+public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private String id;
+    private Long id;
 
     @Range(min = 2, max = 1000)
     private String title;
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
     private SocialMediaType socialMediaType;
 
     private String date;
+
+    private String idOnSite;
 
     private long viewsCount;
 
@@ -28,48 +30,64 @@ public class Post {
 
     private long dislikesCount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade= CascadeType.ALL)
     private Author author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable=false)
     private SearchWord searchWord;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Comment> comments;
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private List<Comment> comments;
 
     public Post() {
     }
 
     // lite post, no comments, only data in search list (not video details page)
-    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String id, long viewsCount, SearchWord searchWord) {
+    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String idOnSite, long viewsCount, SearchWord searchWord) {
         this.title = title;
         this.description = description;
         this.socialMediaType = socialMediaType;
         this.author = author;
         this.date = date;
-        this.id = id;
+        this.idOnSite = idOnSite;
         this.viewsCount = viewsCount;
         this.searchWord = searchWord;
 
-        this.comments = new ArrayList<>();
+        //this.comments = new ArrayList<>();
         this.likesCount = -1;
         this.dislikesCount = -1;
         this.searchWord = searchWord;
     }
 
-    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String id, long viewsCount, List<Comment> comments, long likesCount, long dislikesCount, SearchWord searchWord) {
+    public Post(String title, String description, SocialMediaType socialMediaType, Author author, String date, String idOnSite, long viewsCount,/* List<Comment> comments, */long likesCount, long dislikesCount, SearchWord searchWord) {
         this.title = title;
         this.description = description;
         this.socialMediaType = socialMediaType;
         this.author = author;
         this.date = date;
-        this.id = id;
+        this.idOnSite = idOnSite;
         this.viewsCount = viewsCount;
-        this.comments = comments;
+        //this.comments = comments;
         this.likesCount = likesCount;
         this.dislikesCount = dislikesCount;
         this.searchWord = searchWord;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getIdOnSite() {
+        return idOnSite;
+    }
+
+    public void setIdOnSite(String idOnSite) {
+        this.idOnSite = idOnSite;
     }
 
     public String getTitle() {
@@ -92,8 +110,8 @@ public class Post {
         return socialMediaType.name();
     }
 
-    public void setSocialMediaType(SocialMediaType socialMediaType) {
-        this.socialMediaType = socialMediaType;
+    public void setSocialMediaType(String socialMediaType) {
+        this.socialMediaType = SocialMediaType.valueOf(socialMediaType);
     }
 
     public Author getAuthor() {
@@ -112,10 +130,6 @@ public class Post {
         this.date = date;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public long getViewsCount() {
         return viewsCount;
     }
@@ -124,13 +138,13 @@ public class Post {
         this.viewsCount = viewsCount;
     }
 
-    public List<Comment> getComments() {
+    /*public List<Comment> getComments() {
         return comments;
     }
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
-    }
+    }*/
 
     public long getLikesCount() {
         return likesCount;
@@ -153,8 +167,9 @@ public class Post {
     }
 
     public void setSearchWord(SearchWord searchWord) {
-        this.searchWord = Post.this.searchWord;
+        this.searchWord = searchWord;
     }
+
 
 
     @Override
