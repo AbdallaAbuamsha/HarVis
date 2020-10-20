@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class PostRepository {
+public class PostRepositorySpark {
 
     public void saveAll(Dataset postsDataset) {
         postsDataset.write()

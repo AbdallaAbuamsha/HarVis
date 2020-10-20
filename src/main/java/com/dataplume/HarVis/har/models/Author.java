@@ -21,7 +21,7 @@ public class Author implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Range(min = 2, max = 1000)
+//    @Size(min = 2, max = 1000)
     private String name;
 
     private String idOnSite;

@@ -2,9 +2,6 @@ package com.dataplume.HarVis.har.repositories;
 
 import com.dataplume.HarVis.har.enums.SocialMediaType;
 import com.dataplume.HarVis.har.models.Author;
-import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +11,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class AuthorRepository {
+public class AuthorRepositorySpark {
 
-    Logger logger = LoggerFactory.getLogger(AuthorRepository.class);
+    Logger logger = LoggerFactory.getLogger(AuthorRepositorySpark.class);
 
     @Autowired
     private SparkSession spark;
 
     private Encoder<Author> authorEncoder;
 
-    public AuthorRepository() {
+    public AuthorRepositorySpark() {
         authorEncoder = Encoders.bean(Author.class);
     }
 
@@ -72,7 +69,7 @@ public class AuthorRepository {
                 .option("password", "Root31322!").load().as(authorEncoder).collectAsList();
     }
 
-    public Dataset getAlreadySavedAuthorsBySocialMediaType(String socialMediaType) {
+    public Dataset getAlreadySavedLiteAuthorsBySocialMediaType(String socialMediaType) {
         Dataset authors = spark
                 .read()
                 .format("jdbc")

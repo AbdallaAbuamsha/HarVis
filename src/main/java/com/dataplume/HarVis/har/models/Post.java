@@ -4,6 +4,7 @@ import com.dataplume.HarVis.har.enums.SocialMediaType;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
@@ -12,7 +13,7 @@ public class Post implements Serializable {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    @Range(min = 2, max = 1000)
+//    @Size(min = 2, max = 1000)
     private String title;
 
     private String description;
@@ -30,7 +31,8 @@ public class Post implements Serializable {
 
     private long dislikesCount;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade= CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade= CascadeType.MERGE)
+    @JoinColumn(name="author_id")
     private Author author;
 
     @ManyToOne(fetch = FetchType.LAZY)
