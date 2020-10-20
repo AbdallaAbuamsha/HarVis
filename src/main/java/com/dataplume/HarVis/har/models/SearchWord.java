@@ -42,7 +42,7 @@ public class SearchWord implements Serializable {
     }
 
     public SearchWord() {
-        sId = -1; sWord = "-1";
+        sId = -1;
     }
 
     public Long getId() {
