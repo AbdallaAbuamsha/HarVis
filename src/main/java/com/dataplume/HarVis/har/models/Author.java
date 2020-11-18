@@ -3,7 +3,6 @@ package com.dataplume.HarVis.har.models;
 import com.dataplume.HarVis.har.enums.AuthorType;
 import com.dataplume.HarVis.har.enums.SocialMediaType;
 import com.sun.istack.Nullable;
-import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;

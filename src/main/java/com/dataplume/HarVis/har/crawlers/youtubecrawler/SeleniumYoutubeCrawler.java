@@ -1,4 +1,4 @@
-package com.dataplume.HarVis.har.models.crawlers.youtubecrawler;
+package com.dataplume.HarVis.har.crawlers.youtubecrawler;
 
 import com.dataplume.HarVis.har.enums.AuthorType;
 import com.dataplume.HarVis.har.enums.SocialMediaType;
@@ -26,7 +26,7 @@ public class SeleniumYoutubeCrawler extends Crawler {
 
     Logger logger = LoggerFactory.getLogger(SeleniumYoutubeCrawler.class);
 
-    private static final String CHROME_DRIVER_PATH = "/home/abdalla/Work/DataPlume/HarVis/Silinum/chromedriver_linux64/chromedriver";
+    private static final String CHROME_DRIVER_PATH = "/home/abdalla/Work/DataPlume/HarVis/selenium/chromedriver_linux64/chromedriver";
     private static final String BASE_URL = "https://www.youtube.com/results?search_query=";
     private static ChromeDriver driver;
 

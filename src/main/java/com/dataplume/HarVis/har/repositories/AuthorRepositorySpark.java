@@ -63,7 +63,7 @@ public class AuthorRepositorySpark {
                 .read()
                 .format("jdbc")
                 .option("url", "jdbc:mysql://localhost:3306/harvis?createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC")
-                .option("driver", "com.mysql.cj.jdbc.Driver")
+                .option("driver", "com.mysql.jdbc.Driver")
                 .option("dbtable", "Author")
                 .option("user", "root")
                 .option("password", "Root31322!").load().as(authorEncoder).collectAsList();
